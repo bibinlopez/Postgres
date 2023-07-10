@@ -35,7 +35,7 @@ WHERE
 CREATE table photos(
   id serial PRIMARY KEY,
   url varchar(200),
-  user_id integer REFERENCES users(id)
+  user_id integer REFERENCES users(id) on DELETE CASCADE
 );
 
 INSERT INTO
@@ -74,6 +74,41 @@ FROM
 CREATE table comments(
   id serial PRIMARY key,
   contents VARCHAR(300),
-  photo_id INTEGER REFERENCES photos(id),
-  user_id INTEGER REFERENCES users(id)
+  photo_id INTEGER REFERENCES photos(id) on DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) on DELETE CASCADE
 );
+
+INSERT into
+  comments(contents, photo_id, user_id)
+VALUES
+  ('very good photo', 6, 2)
+
+
+select
+  url,
+  contents,
+  photos.id as photo_id,
+  comments.id as comments_id,
+  photos.user_id as photo_creator_id,
+  comments.user_id as comment_posted_user_id
+FROM
+  comments
+  Join photos on photos.id = comments.photo_id
+WHERE
+  photos.user_id = comments.user_id
+
+// 3 way join
+select
+  comments.id as comments_id,
+  comments.user_id AS posted_userid,
+  contents,
+  photos.id as photo_Id,
+  photos.user_id as photo_creatorId,
+  url,
+  users.id as og_userId,
+  comments.photo_id as photo_id2
+FROM
+  comments
+  JOIN photos on photos.id = comments.photo_id
+  JOIN users on users.id = photos.user_id
+  AND users.id = comments.user_id
